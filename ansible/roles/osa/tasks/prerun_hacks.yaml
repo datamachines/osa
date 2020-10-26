@@ -1,9 +1,20 @@
 ---
-- name: remove dragonflow (should only run on Rocky)
+- name: remove dragonflow
   become: yes
   lineinfile:
     path: /etc/ansible/roles/os_neutron/vars/main.yml
     regex: '^  - dragonflow'
     state: absent
   tags:
-    - always
+    - rocky
+
+- name: fix os_tempest vars
+  become: yes
+  copy:
+    src: files/rocky/os_tempest_vars_main.yaml
+    dest: /etc/ansible/roles/os_tempest/vars/main.yml
+    owner: root
+    group: root
+    mode: '0644'
+  tags:
+    - rocky

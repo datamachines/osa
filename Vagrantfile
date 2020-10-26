@@ -8,7 +8,7 @@ end
 
 def get_ansible_tags(openstack_release)
   prompt = TTY::Prompt.new
-  return prompt.multi_select("What would you like to do?", per_page: 12) do |menu|
+  tags = prompt.multi_select("What would you like to do?", per_page: 12) do |menu|
     # menu.default 1
     # menu.choice "Full Install", "install_full"
     
@@ -18,6 +18,7 @@ def get_ansible_tags(openstack_release)
     if openstack_release != "rocky"
       menu.choice "Install Additional Service: Manila", ["install_manila", "install_additional_services"]
     end
+
     menu.choice "Install Ceph", ["install_ceph", "install_additional_services"]
     menu.choice "Reconfigure Services", "reconfigure_services"
     menu.choice "------- TOOLS -------", disabled: ""
@@ -27,8 +28,9 @@ def get_ansible_tags(openstack_release)
     menu.choice "Setup Hosts", "setup_hosts"
     menu.choice "Setup Infrastructure", "setup_infrastructure"
     menu.choice "Setup Openstack", "setup_openstack"
-
   end
+  # Along with menu choice, also tag with openstack_release
+  return tags.append(openstack_release)
 end
 
 def get_openstack_release()

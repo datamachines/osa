@@ -1,4 +1,8 @@
 ---
+- include_tasks: haproxy_config.yaml
+  tags:
+    - install_additional_services
+
 - name: run ceph playbook
   become: yes
   command: openstack-ansible playbooks/ceph-install.yml
