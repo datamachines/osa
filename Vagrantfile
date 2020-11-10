@@ -62,7 +62,7 @@ if (ARGV.include?("up") || (ARGV.include?("provision") || ARGV.include?("--provi
   ENV["ANSIBLE_TAGS"] = ansible_tags.join(",")
 end
 
-if ARGV.include?("up")
+if ARGV.include?("up") && !ARGV.include?("--provision")
   aio_size = get_size_of_aio()
   ENV["AIO_SIZE"] = aio_size
 end
