@@ -43,6 +43,15 @@ def get_openstack_release()
   end
 end
 
+def get_size_of_aio()
+  prompt = TTY::Prompt.new
+  return prompt.select("How big of a VM should be used for AIO?") do |menu|
+    menu.choice "Small (4 CPUs, 8G RAM)", "small"
+    menu.choice "Large (8 CPUs, 16G RAM)", "large"
+    menu.choice "Pushin' It (10 CPUs, 28G RAM)", "pushinit"
+  end
+end
+
 if openstack_release.nil? && !ARGV.include?("box")
   openstack_release = get_openstack_release()
   ENV["OPENSTACK_RELEASE"] = openstack_release
@@ -51,6 +60,11 @@ end
 if (ARGV.include?("up") || (ARGV.include?("provision") || ARGV.include?("--provision"))) && ansible_tags.nil?
   ansible_tags = get_ansible_tags(openstack_release)
   ENV["ANSIBLE_TAGS"] = ansible_tags.join(",")
+end
+
+if ARGV.include?("up")
+  aio_size = get_size_of_aio()
+  ENV["AIO_SIZE"] = aio_size
 end
 
 Vagrant.configure("2") do |config|
@@ -91,14 +105,18 @@ Vagrant.configure("2") do |config|
 
       machine.vm.provider "virtualbox" do |vb|
         # ----------------------------------------------------------
-        # CPUs
+        # CPU and Memory
         # ----------------------------------------------------------
-        vb.cpus = 4
-
-        # ----------------------------------------------------------
-        # Memory
-        # ----------------------------------------------------------
-        vb.memory = "8192"
+        if aio_size == 'small'
+          vb.cpus = 4
+          vb.memory = 8192
+        elsif aio_size == 'large'
+          vb.cpus = 8
+          vb.memory = 16384
+        elsif aio_size == 'pushinit'
+          vb.cpus = 10
+          vb.memory = 28672
+        end
 
         # ----------------------------------------------------------
         # Disks
